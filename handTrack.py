@@ -10,11 +10,8 @@ hands = mp_hands.Hands(
     max_num_hands=1,
     min_detection_confidence=0.7,
     min_tracking_confidence=0.7,
-    model_complexity=1,  # You can experiment with this parameter (0, 1, 2)
+    model_complexity=1, # You can experiment with this parameter (0, 1, 2)
 )
-
-# Initialize MediaPipe drawing module
-mp_drawing = mp.solutions.drawing_utils
 
 # Set up the webcam
 cap = cv2.VideoCapture(0)
@@ -22,10 +19,20 @@ cap = cv2.VideoCapture(0)
 # Get screen size
 screen_width, screen_height = pyautogui.size()
 
+# Define the portion of the camera view to map to the full screen (80% here)
+inner_area_percent = 0.8  # This means 80% of the camera view maps to 100% of the screen
+
+# Calculate the margins around the inner area
+def calculate_margins(frame_width, frame_height, inner_area_percent):
+    margin_width = frame_width * (1 - inner_area_percent) / 2
+    margin_height = frame_height * (1 - inner_area_percent) / 2
+    return margin_width, margin_height
+
 # Convert video coordinates to screen coordinates
-def convert_to_screen_coordinates(x, y, frame_width, frame_height):
-    screen_x = np.interp(x, (0, frame_width), (0, screen_width))
-    screen_y = np.interp(y, (0, frame_height), (0, screen_height))
+def convert_to_screen_coordinates(x, y, frame_width, frame_height, margin_width, margin_height):
+    # Map the inner area (defined by the margins) to the full screen size
+    screen_x = np.interp(x, (margin_width, frame_width - margin_width), (0, screen_width))
+    screen_y = np.interp(y, (margin_height, frame_height - margin_height), (0, screen_height))
     return screen_x, screen_y
 
 # Function to check if two fingertips are touching
@@ -62,8 +69,11 @@ try:
                 mcp_x = int(middle_finger_mcp.x * frame.shape[1])
                 mcp_y = int(middle_finger_mcp.y * frame.shape[0])
 
+                # Calculate margins based on the current frame size
+                margin_width, margin_height = calculate_margins(frame.shape[1], frame.shape[0], inner_area_percent)
+
                 # Convert video coordinates to screen coordinates
-                screen_x, screen_y = convert_to_screen_coordinates(mcp_x, mcp_y, frame.shape[1], frame.shape[0])
+                screen_x, screen_y = convert_to_screen_coordinates(mcp_x, mcp_y, frame.shape[1], frame.shape[0], margin_width, margin_height)
 
                 # Move the mouse
                 pyautogui.moveTo(screen_x, screen_y)
