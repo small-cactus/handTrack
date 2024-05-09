@@ -1,7 +1,6 @@
 # handTrack
 > This Python script allows you to control your computer's mouse cursor using hand gestures, with the help of a webcam. It uses OpenCV for image processing, MediaPipe for hand tracking, and PyAutoGUI for simulating mouse movements and clicks.
 
-<br><br/>
 <p align="center">
   <img src="handTrack.png" width="200">
 </p>
