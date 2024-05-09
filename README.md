@@ -6,7 +6,6 @@
 </p>
 
 ## Features
-
 - **Mouse Movement**: Just move your hand in front of the screen to control the mouse. It's like using the force.
 - **Mouse Click**: Touch your index and thumb together to click the mouse.
 
@@ -15,6 +14,8 @@
 Before you can use this script, you'll need to have Python installed on your machine, along with a few libraries. This guide assumes you have Python 3.6 or newer. (I used 3.11)
 
 ## Installation
+> [!WARNING]
+> This script is optimized for a Macbook Pro Retina Display, meaning if you are using anything higher or lower resolution, hand tracking may or may not work.
 
 1. **Clone the Repository**
    First, clone this repository to your local machine using:
