@@ -58,7 +58,7 @@ Before running the script, you might need to adjust a few parameters based on yo
 - **Camera Index**: If your system has multiple cameras and the script does not use the correct one, change the `cap = cv2.VideoCapture(0)` line. Replace `0` with the index of the desired camera.
 - **Detection Confidence**: Adjust `min_detection_confidence` and `min_tracking_confidence` in the hand tracking setup section if the script is too sensitive or not sensitive enough.
 - **Model Complexity**: Change `model_complexity` in the hand detection setup. Use `1` (default) for a balance between performance and accuracy, or try `0` for faster but less accurate detection, and `2` for more accurate but slower detection.
-- **Distance Threshold**: If your fingers need to be closer or further apart to register a click, modify the `threshold` parameter in the `are_fingertips_touching` function.
+- **Distance Threshold**: If your fingers need to be closer or further apart to register a click, modify the `touch_threshold` value. This value measures changes in overall hand size, like what happens when you click your index and thumb together.
 
 ## Usage
 
@@ -74,7 +74,7 @@ Make sure you have sufficient lighting and your hand is visible to the webcam fo
 
 - **Script Doesn't Recognize Hand Movements**: Ensure your hand is well-lit and within the frame. Adjust the confidence thresholds if necessary.
 - **Mouse Movements Are Erratic**: Try adjusting the screen coordinates mapping in `convert_to_screen_coordinates` to match your screen size more accurately.
-- **Clicks Are Not Registering**: Modify the `threshold` in the `are_fingertips_touching` function. You might need to increase or decrease this value based on your hand size and camera distance.
+- **Clicks Are Not Registering**: Modify the `touch_threshold`. You might need to increase or decrease this value based on your hand size.
 
 ## License
 
