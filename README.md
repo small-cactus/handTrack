@@ -6,7 +6,7 @@
 </p>
 
 ## Features
-- **Mouse Movement**: Just move your hand in front of the screen to control the mouse. It's like using the force.
+- **Mouse Movement**: Just move your hand in front of the screen to control the mouse, your palm should be facing the camera like you're using the force.
 - **Mouse Click**: Touch your index and thumb together to click the mouse.
 
 ## Demos
