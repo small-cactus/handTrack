@@ -9,6 +9,34 @@
 - **Mouse Movement**: Just move your hand in front of the screen to control the mouse. It's like using the force.
 - **Mouse Click**: Touch your index and thumb together to click the mouse.
 
+## Demos
+### Accuracy even at range, 1080p webcam
+https://github.com/small-cactus/handTrack/assets/125771841/9bd73899-23d6-4333-980b-56a602728c6e
+> This is a combined 2 videos from a screen recording and my phone, there is no VFX, and no processing, everything you see is how it actually is when you use it. The webcam used in this video is the one in the MacBook.
+
+### Extremely accurate click detection
+
+https://github.com/small-cactus/handTrack/assets/125771841/c43e9694-5947-44b0-a232-ce0945ccc05d
+> This video has nothing special done to it, no tunings tweaked, no higher resolution camera, just everything from my MacBook.
+
+## How Our Hand Tracking System Works
+
+Here's why our hand tracking system stands out from the competition:
+
+- **Absolute Hand Tracking**: Our system implements absolute hand tracking, meaning that specific hand positions always correspond to the same screen locations. This feature ensures predictable and intuitive control, enhancing the user experience by making interactions more natural and consistent.
+
+- **Mapped Camera to Screen**: Our system maps the camera view to a specific portion of the screen, allowing full-screen hand tracking without the common issue of reaching tracking limits. This mapping ensures users can navigate the entire screen smoothly with their hand movements.
+
+- **Dynamic Mouse Steps for Low FPS**: We generate dynamic mouse steps to compensate for low camera frame rates, ensuring the mouse movement remains smooth and responsive. This feature is crucial for maintaining a high-quality user experience, even when camera input is slower.
+
+- **Real-Time, Multithreaded Processing**: The system runs on a separate thread and calculates hand tracking in real-time. This approach minimizes latency and maximizes performance, providing instant response to hand movements.
+
+- **Advanced Click Detection**: Our click detection algorithm is more refined than typical systems. Not only do we detect if the thumb and index finger are touching, but we also monitor the overall hand size changes. This method helps prevent accidental clicks and allows reliable activation from varying distances from the camera.
+
+- **Smart Hand Presence Detection**: The system automatically disables hand tracking when no hands are detected and allows tracking for only one hand at a time. This prevents accidental mouse control from nearby people and ensures that the system is both secure and user-centric.
+
+
+
 ## Prerequisites
 
 Before you can use this script, you'll need to have Python installed on your machine, along with a few libraries. This guide assumes you have Python 3.6 or newer. (I used 3.11)
