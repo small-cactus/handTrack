@@ -22,15 +22,15 @@ if not ret:
     print("Failed to capture video")
     exit(1)
 
-# Configure PyAutoGUI
+# Configure PyAutoGU
 pyautogui.FAILSAFE = False
 pyautogui.PAUSE = 0
 
 # Get screen size
 screen_width, screen_height = pyautogui.size()
 
-# Define the portion of the camera view to map to the full screen (80% here)
-inner_area_percent = 0.8
+# Define the portion of the camera view to map to the full screen (70% here)
+inner_area_percent = 0.7
 
 # Calculate the margins around the inner area
 def calculate_margins(frame_width, frame_height, inner_area_percent):
@@ -51,7 +51,7 @@ def get_landmark_distance(landmark1, landmark2):
     distance = np.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
     return distance
 
-# Movement Thread
+# Movement Thread for smoother cursor movement
 class CursorMovementThread(threading.Thread):
     def __init__(self):
         super().__init__()
@@ -59,8 +59,8 @@ class CursorMovementThread(threading.Thread):
         self.current_x, self.current_y = pyautogui.position()
         self.target_x, self.target_y = self.current_x, self.current_y
         self.running = True
-        self.active = False  # Control flag to pause/resume cursor movement
-        self.jitter_threshold = 0.008  # Percentage threshold to reduce jitter
+        self.active = False
+        self.jitter_threshold = 0.003
 
     def run(self):
         while self.running:
@@ -68,7 +68,7 @@ class CursorMovementThread(threading.Thread):
                 distance = np.hypot(self.target_x - self.current_x, self.target_y - self.current_y)
                 screen_diagonal = np.hypot(screen_width, screen_height)
                 if distance / screen_diagonal > self.jitter_threshold:
-                    step = max(1, distance / 12.0)  # Adjust the divisor for speed
+                    step = max(0.0001, distance / 12)  # 1 is instant but lower framerate, 12 is 120fps but slower.
                     if distance != 0:
                         step_x = (self.target_x - self.current_x) / distance * step
                         step_y = (self.target_y - self.current_y) / distance * step
@@ -77,7 +77,7 @@ class CursorMovementThread(threading.Thread):
                         pyautogui.moveTo(self.current_x, self.current_y, _pause=False)
                 time.sleep(0)
             else:
-                time.sleep(0.1)  # Reduce CPU usage when inactive
+                time.sleep(0.1)
 
     def update_target(self, x, y):
         self.target_x, self.target_y = x, y
@@ -96,9 +96,8 @@ movement_thread = CursorMovementThread()
 movement_thread.start()
 
 # Initialize control variables
-fingertips_touching = False
 mouse_pressed = False
-touch_threshold = 0.15  # Initial touch threshold as a percentage of hand size
+touch_threshold = 0.19
 
 try:
     while True:
