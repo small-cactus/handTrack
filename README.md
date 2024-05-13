@@ -8,6 +8,8 @@
 ## Features
 - **Mouse Movement**: Just move your hand in front of the screen to control the mouse, your palm should be facing the camera like you're using the force.
 - **Mouse Click**: Touch your index and thumb together to click the mouse.
+- **Scrolling**: Touch your middle finger and thumb together, then drag up and down, just like using a touchscreen.
+
 
 ## Demos
 ### Accuracy even at range, 1080p webcam
