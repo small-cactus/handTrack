@@ -22,7 +22,7 @@ if not ret:
     print("Failed to capture video")
     exit(1)
 
-# Configure PyAutoGU
+# Configure PyAutoGUI
 pyautogui.FAILSAFE = False
 pyautogui.PAUSE = 0
 
@@ -68,7 +68,7 @@ class CursorMovementThread(threading.Thread):
                 distance = np.hypot(self.target_x - self.current_x, self.target_y - self.current_y)
                 screen_diagonal = np.hypot(screen_width, screen_height)
                 if distance / screen_diagonal > self.jitter_threshold:
-                    step = max(0.0001, distance / 12)  # 1 is instant but lower framerate, 12 is 120fps but slower.
+                    step = max(0.0001, distance / 12)  # Smoother movement
                     if distance != 0:
                         step_x = (self.target_x - self.current_x) / distance * step
                         step_y = (self.target_y - self.current_y) / distance * step
@@ -91,15 +91,53 @@ class CursorMovementThread(threading.Thread):
     def stop(self):
         self.running = False
 
-# Initialize the movement thread
+# Scrolling Thread for smooth scrolling with inertia
+class ScrollThread(threading.Thread):
+    def __init__(self):
+        super().__init__()
+        self.daemon = True
+        self.scroll_queue = []
+        self.scroll_lock = threading.Lock()
+        self.running = True
+        self.inertia = 0.95  # Slower reduction for rolling stop effect
+        self.scroll_step = 0.01  # Smaller step for smoother scroll
+        self.inertia_threshold = 0.01  # Minimum inertia scroll amount
+
+    def run(self):
+        while self.running:
+            if self.scroll_queue:
+                with self.scroll_lock:
+                    scroll_amount = self.scroll_queue.pop(0)
+                pyautogui.scroll(scroll_amount)
+                # Apply inertia effect if the queue is empty
+                if len(self.scroll_queue) == 0 and abs(scroll_amount) > self.inertia_threshold:
+                    scroll_amount *= self.inertia
+                    if abs(scroll_amount) > self.scroll_step:
+                        with self.scroll_lock:
+                            self.scroll_queue.append(scroll_amount)
+            time.sleep(0.005)  # Increased frequency for smoother processing
+
+    def add_scroll(self, scroll_amount):
+        with self.scroll_lock:
+            self.scroll_queue.append(scroll_amount)
+
+    def stop(self):
+        self.running = False
+
+# Initialize the movement and scroll threads
 movement_thread = CursorMovementThread()
+scroll_thread = ScrollThread()
 movement_thread.start()
+scroll_thread.start()
 
 # Initialize control variables
 mouse_pressed = False
 touch_threshold = 0.19
+scroll_threshold = 0.005  # Smaller threshold for finer detection
+scroll_sensitivity = 0.05  # Adjust this value for scrolling speed
 
 try:
+    previous_y = None
     while True:
         # Read a frame from the webcam
         ret, frame = cap.read()
@@ -139,12 +177,12 @@ try:
                 hand_size = get_landmark_distance(wrist, middle_finger_tip)
                 adaptive_threshold = touch_threshold * hand_size
 
-                # Check if index finger and thumb are touching
+                # Check if index finger and thumb are touching (for clicking)
                 index_tip = hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP]
                 thumb_tip = hand_landmarks.landmark[mp_hands.HandLandmark.THUMB_TIP]
-                finger_distance = get_landmark_distance(index_tip, thumb_tip)
+                index_thumb_distance = get_landmark_distance(index_tip, thumb_tip)
 
-                if finger_distance < adaptive_threshold:
+                if index_thumb_distance < adaptive_threshold:
                     if not mouse_pressed:
                         pyautogui.mouseDown()
                         mouse_pressed = True
@@ -152,6 +190,22 @@ try:
                     if mouse_pressed:
                         pyautogui.mouseUp()
                         mouse_pressed = False
+
+                # Check if middle finger and thumb are touching (for scrolling)
+                middle_tip = hand_landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_TIP]
+                middle_thumb_distance = get_landmark_distance(middle_tip, thumb_tip)
+
+                if middle_thumb_distance < adaptive_threshold:
+                    # Scroll gesture detection
+                    if previous_y is not None:
+                        delta_y = middle_tip.y - previous_y
+                        if abs(delta_y) > scroll_threshold:
+                            scroll_amount = delta_y * screen_height * scroll_sensitivity
+                            scroll_thread.add_scroll(scroll_amount)
+
+                    previous_y = middle_tip.y
+                else:
+                    previous_y = None
         else:
             # No hands detected
             if mouse_pressed:
@@ -164,5 +218,6 @@ try:
 
 finally:
     movement_thread.stop()
+    scroll_thread.stop()
     cap.release()
     cv2.destroyAllWindows()
